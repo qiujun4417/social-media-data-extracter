@@ -9,7 +9,7 @@ COPY requirements.txt /app/requirements.txt
 COPY . /app
 
 # 安装依赖
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple
+# RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 运行爬虫命令
