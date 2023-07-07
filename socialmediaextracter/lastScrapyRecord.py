@@ -20,7 +20,7 @@ class ScrapyRecord(object):
         data = self.collection.find_one({})
         if not data:
             return None
-        return [data['last_comment_id'], data['total_comments']]
+        return [data['last_comment_id'], data['total_number']]
     
     def get_latest_comment(self):
         comment_collection = self.db['comments']

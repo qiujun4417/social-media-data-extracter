@@ -5,6 +5,7 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # 复制项目代码到容器中
+COPY requirements.txt /app/requirements.txt
 COPY . /app
 
 # 安装依赖
