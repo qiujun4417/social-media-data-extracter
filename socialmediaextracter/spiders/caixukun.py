@@ -18,7 +18,7 @@ class CaixukunSpider(scrapy.Spider):
     def __init__(self):
         super().__init__()
         self.scrapy_record = ScrapyRecord()
-        self.client = pymongo.MongoClient('mongodb://nick_2014:nick_2088_21@localhost:32774/?authMechanism=DEFAULT')
+        self.client = pymongo.MongoClient('mongodb://nick_2014:nick_2088_21@8.140.201.185:32774/?authMechanism=DEFAULT')
         self.db = self.client['mydatabase']
 
     def start_requests(self):
@@ -30,7 +30,7 @@ class CaixukunSpider(scrapy.Spider):
                 collection = self.db['comments']
                 total_count = collection.count_documents({})
                 total_comments = result[1]
-                if total_count & total_comments > total_count:
+                if total_comments > total_count:
                     last_comment_id = self.scrapy_record.get_latest_comment()
                     if last_comment_id:
                         url += f"&max_id={str(last_comment_id)}"

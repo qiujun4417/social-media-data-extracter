@@ -40,12 +40,12 @@ CONCURRENT_REQUESTS = 32
 DEFAULT_REQUEST_HEADERS = {
    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
    "Accept-Language": "en",
-   "Cookie": "XSRF-TOKEN=-zJRebRiG4jVld3y4EO0IbF0; PC_TOKEN=ace62a276e; SUB=_2AkMT_xAQf8NxqwJRmPATzmjjbY9zywnEieKlo-HLJRMxHRl-yT9kql1btRB6OH8-_3Oohz4cz7htMb5azovZqy72vucl; SUBP=0033WrSXqPxfM72-Ws9jqgMF55529P9D9WWhC0Or7a1RSgho-rTXQ3aT; login_sid_t=0cff2c51efbacbceddee2eb0f89a5fc8; cross_origin_proto=SSL; WBStorage=4d96c54e|undefined; _s_tentry=passport.weibo.com; wb_view_log=2560*14401; Apache=7065432359410.706.1688444716619; SINAGLOBAL=7065432359410.706.1688444716619; ULV=1688444716621:1:1:1:7065432359410.706.1688444716619:; WBPSESS=durPiJxsbzq5XDaI2wW0N_ReaXVVRoGRwQMUJgtQxnPi7AK0WLCBnQ-McHGu-ouOmW8xf4Kt94IJfT51P8-MnLwSwhoUXXNG95Ot6nOqTIDumKfGPXGRiUfwAKBQrxA0tmAo0oYqceLVUBf8iuPRnqaojGUECu2UCAfxGHxKq6Y=",
-   "X-Xsrf-Token": "-zJRebRiG4jVld3y4EO0IbF0",
+   "Cookie": "XSRF-TOKEN=bmAX3dftBsfJWqGoV5hQhlug; PC_TOKEN=ad047104dc; SUB=_2AkMT-3R5f8NxqwJRmfAQzGnrbYt0yArEieKlp4WiJRMxHRl-yT9kqh0stRB6OHtalR4DPFLha73kAsQfp2JfzPMOAeql; SUBP=0033WrSXqPxfM72-Ws9jqgMF55529P9D9Wh5GzCgIBk3v1r-BLemfpLR; login_sid_t=5a6a6a44bd5091a0181bc49371d56f79; cross_origin_proto=SSL; WBStorage=4d96c54e|undefined; _s_tentry=passport.weibo.com; wb_view_log=2560*14401; Apache=5241255125585.357.1688730453150; SINAGLOBAL=5241255125585.357.1688730453150; ULV=1688730453153:1:1:1:5241255125585.357.1688730453150:; WBPSESS=NcA3pTjBP9SOtpsXaAXWl2WjI8D_jaWPZdFgUTT1XIWOp1L_TH3PF0S9qEO4gv7ggPjfkh_qWwU2roC6V19FDGxxeeCcKLFRttKrCmzBGC6PJLaS_D-4Ra2IfThxzVnJhieqj1KKQfaZr4_UrVqW9XaIDruzx8uiRjtMSFgchUc=",
+   "X-Xsrf-Token": "bmAX3dftBsfJWqGoV5hQhlug",
    "Referer": "https://weibo.com/u/1776448504",
    "X-Requested-With": "XMLHttpRequest",
    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-   "Traceparent": "00-0ad05afa89e6429bcdc855fd740bfda6-8cad83b8e3f6bb3d-00"
+   "Traceparent": "00-4a2a52ff8b32347ecf8a0d3c4e639ab0-623a5d4ef89dcdd8-00"
 }
 
 # Enable or disable spider middlewares
