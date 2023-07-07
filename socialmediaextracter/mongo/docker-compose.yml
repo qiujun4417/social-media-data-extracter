@@ -1,0 +1,12 @@
+services:
+  mongodb:
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: nick_2014
+      MONGO_INITDB_ROOT_PASSWORD: nick_2088_21
+    command: mongod --auth
+    ports:
+      - 32774:27017
+    volumes:
+      - /var/mongodb/data:/data/db
