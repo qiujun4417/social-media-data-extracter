@@ -3,7 +3,7 @@ import datetime
 
 class ScrapyRecord(object):
     def __init__(self):
-        self.client = pymongo.MongoClient('mongodb://nick_2014:nick_2088_21@8.140.201.185:32774/?authMechanism=DEFAULT')
+        self.client = pymongo.MongoClient('mongodb://nick_2014:nick_2088_21@localhost:32774/?authMechanism=DEFAULT')
         self.db = self.client['mydatabase']
         self.collection = self.db['scrapy_record']
 

@@ -18,7 +18,7 @@ class CaixukunSpider(scrapy.Spider):
     def __init__(self):
         super().__init__()
         self.scrapy_record = ScrapyRecord()
-        self.client = pymongo.MongoClient('mongodb://nick_2014:nick_2088_21@8.140.201.185:32774/?authMechanism=DEFAULT')
+        self.client = pymongo.MongoClient('mongodb://nick_2014:nick_2088_21@localhost:32774/?authMechanism=DEFAULT')
         self.db = self.client['mydatabase']
 
     def start_requests(self):
