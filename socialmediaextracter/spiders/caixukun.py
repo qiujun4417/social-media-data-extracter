@@ -13,12 +13,12 @@ class CaixukunSpider(scrapy.Spider):
     name = "caixukun"
     allowed_domains = ["weibo.com"]
     
-    start_urls = ["https://weibo.com/ajax/statuses/buildComments?is_reload=1&id=4919379877957385&count=20&is_show_bulletin=2&is_mix=0&uid=1776448504&fetch_level=0"]
+    start_urls = ["https://weibo.com/ajax/statuses/buildComments?is_reload=1&id=4919379877957385&is_show_bulletin=2&is_mix=0&count=20&type=feed&uid=1776448504&fetch_level=0"]
 
     def __init__(self):
         super().__init__()
         self.scrapy_record = ScrapyRecord()
-        self.client = pymongo.MongoClient('mongodb://nick_2014:nick_2088_21@8.140.201.185:32774/?authMechanism=DEFAULT')
+        self.client = pymongo.MongoClient('mongodb://nick_2014:nick_2088_21@localhost:32774/?authMechanism=DEFAULT')
         self.db = self.client['mydatabase']
 
     def start_requests(self):
@@ -57,12 +57,15 @@ class CaixukunSpider(scrapy.Spider):
 
         self.scrapy_record.save_last_scrapy_comment(max_id, total_number)
         if max_id & max_id != 0:
-            next_page_url = f"https://weibo.com/ajax/statuses/buildComments?is_reload=1&id=4919379877957385&count=20&is_show_bulletin=2&is_mix=0&uid=1776448504&fetch_level=0&max_id={str(max_id)}"
+            next_page_url = f"https://weibo.com/ajax/statuses/buildComments?is_reload=1&id=4919379877957385&is_show_bulletin=2&is_mix=0&count=20&type=feed&uid=1776448504&fetch_level=0&max_id={str(max_id)}"
             pause_time = random.uniform(2, 4)
             time.sleep(pause_time)
+        else:
+            last_comment_id = self.scrapy_record.get_latest_comment()
+            next_page_url = f"https://weibo.com/ajax/statuses/buildComments?is_reload=1&id=4919379877957385&is_show_bulletin=2&is_mix=0&count=20&type=feed&uid=1776448504&fetch_level=0&max_id={str(last_comment_id)}"
         
-            # 递归调用自身处理下一页响应
-            yield scrapy.Request(next_page_url, callback=self.parse, dont_filter=True)
+        # 递归调用自身处理下一页响应
+        yield scrapy.Request(next_page_url, callback=self.parse, dont_filter=True)
 
     """
     this is a field value populate
