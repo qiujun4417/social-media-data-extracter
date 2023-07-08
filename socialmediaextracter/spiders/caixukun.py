@@ -11,9 +11,23 @@ from socialmediaextracter import timeformatter
 class CaixukunSpider(scrapy.Spider):
 
     name = "caixukun"
+
     allowed_domains = ["weibo.com"]
+
+    already_process_ids = []
+
+    duplicate_count = 0
+
+    turn_around_flag = False
+
+    current_handled_reply_comment_id = 0
+
+    params = {'id': '4919379877957385', 'is_mix': '0', 'uid': '1776448504', 'fetch_level': '0'}
     
-    start_urls = ["https://weibo.com/ajax/statuses/buildComments?is_reload=1&id=4919379877957385&count=20&is_show_bulletin=2&is_mix=0&uid=1776448504&fetch_level=0"]
+    another_param = {'id': '4919382171975997', 'is_mix': '0', 'uid': '1642591402', 'fetch_level': '0'}
+
+    start_urls = ["https://weibo.com/ajax/statuses/buildComments?is_reload=1&id={}&count=20&is_show_bulletin=2&is_mix={}&uid={}&fetch_level={}"]
+    # is_first_time = True
 
     def __init__(self):
         super().__init__()
@@ -23,18 +37,12 @@ class CaixukunSpider(scrapy.Spider):
 
     def start_requests(self):
         for url in self.start_urls:
+            # if self.is_first_time:
+            final_url = url.format(self.params['id'], self.params['is_mix'], self.params['uid'], self.params['fetch_level'])
             result = self.scrapy_record.get_last_scrapy_comment_id_and_total_numbers()
             if result is not None and result[0] is not None and result[0] > 0:
-                url += f"&max_id={str(result[0])}"
-            elif result is not None and result[0] is not None and result[0] == 0:
-                collection = self.db['comments']
-                total_count = collection.count_documents({})
-                total_comments = result[1]
-                if total_comments > total_count:
-                    last_comment_id = self.scrapy_record.get_latest_comment()
-                    if last_comment_id:
-                        url += f"&max_id={str(last_comment_id)}"
-            yield scrapy.Request(url, callback=self.parse, dont_filter=True)
+                final_url += f"&max_id={str(result[0])}"
+            yield scrapy.Request(final_url, callback=self.parse, dont_filter=True)
 
     def parse(self, response):
         data = response.json().get('data')
@@ -54,18 +62,46 @@ class CaixukunSpider(scrapy.Spider):
         if comments:
             self.logger.info("comments size %s", len(comments))
             self.save_to_mongo_for_comments(comments)
+            for comment in comments:
+                if comment['comment_id'] != comment['root_comment_id']:
+                    self.current_handled_reply_comment_id = comment['root_comment_id']
+                    break
 
         self.scrapy_record.save_last_scrapy_comment(max_id, total_number)
-        if max_id & max_id != 0:
-            next_page_url = f"https://weibo.com/ajax/statuses/buildComments?is_reload=1&id=4919379877957385&count=20&is_show_bulletin=2&is_mix=0&uid=1776448504&fetch_level=0&max_id={str(max_id)}"
+        if max_id and max_id != 0 and len(data) > 0 and not self.turn_around_flag:
+            id = self.params['id']
+            is_mix = self.params['is_mix']
+            uid = self.params['uid']
+            fetch_level = self.params['fetch_level']
+            next_page_url = f"https://weibo.com/ajax/statuses/buildComments?is_reload=1&id={id}&count=20&is_show_bulletin=2&is_mix={is_mix}&uid={uid}&fetch_level={fetch_level}&max_id={str(max_id)}"
             pause_time = random.uniform(2, 4)
             time.sleep(pause_time)
+            # 递归调用自身处理下一页响应
+            yield scrapy.Request(next_page_url, callback=self.parse, dont_filter=True)
         else:
-            last_comment_id = self.scrapy_record.get_latest_comment()
-            next_page_url = f"https://weibo.com/ajax/statuses/buildComments?is_reload=1&id=4919379877957385&count=20&is_show_bulletin=2&is_mix=0&uid=1776448504&fetch_level=0&max_id={str(last_comment_id)}"
-        
-        # 递归调用自身处理下一页响应
-        yield scrapy.Request(next_page_url, callback=self.parse, dont_filter=True)
+            self.logger.info("start to query the replys >>>>>>>>>>>>>>>")
+            if self.current_handled_reply_comment_id != 0:
+                self.already_process_ids.append(self.current_handled_reply_comment_id)
+            self.duplicate_count = 0
+            self.turn_around_flag = False
+            collection = self.db['comments']
+            replyed_comment_records = collection.find({'reply_count': {'$gt': 10}})
+            reply_url = None
+            replied_records = [record for record in replyed_comment_records]
+            all_replied_comment_ids = set(record['comment_id'] for record in replied_records)
+            not_yet_process_comment_ids = all_replied_comment_ids.difference(set(self.already_process_ids))
+            need_process_comment = [record for record in replied_records if record['comment_id'] in not_yet_process_comment_ids]
+            if need_process_comment and len(need_process_comment) > 0:
+                for record in need_process_comment:
+                    self.params['id'] = record['comment_id']
+                    self.params['is_mix'] = 1
+                    self.params['uid'] = record['user_id']
+                    self.params['fetch_level'] = 1
+                    reply_url = f"https://weibo.com/ajax/statuses/buildComments?is_reload=1&id={record['comment_id']}&is_show_bulletin=2&is_mix=1&fetch_level=1&count=20&uid={record['user_id']}"
+                    break
+                if reply_url:
+                    self.logger.info("reply_url %s", reply_url)
+                    yield scrapy.Request(reply_url, callback=self.parse, dont_filter=True)
 
     """
     this is a field value populate
@@ -98,6 +134,7 @@ class CaixukunSpider(scrapy.Spider):
         comment_item['reply_count'] = data.get('total_number')
         comment_item['like_count'] = data.get('like_counts')
         comment_item['location'] = location
+        comment_item['root_comment_id'] = data.get('rootid')
         comment_item['comment_time'] = timeformatter.time_formatter(data.get('created_at'))
         text_content = data.get('text_raw')
         comment_item['content'] = textClean.clean_text(text_content)
@@ -116,13 +153,17 @@ class CaixukunSpider(scrapy.Spider):
 
     def save_to_mongo_for_comments(self, comments):
         collection = self.db['comments']
-        existing_records = collection.find({'comment_id': {'$in': [data['comment_id'] for data in comments]}})
+        comment_ids = [item['comment_id'] for item in comments]
+        existing_records = collection.find({'comment_id': {'$in': comment_ids}})
+    
         existing_comment_ids = set(record['comment_id'] for record in existing_records)
         for comment in comments:
             if comment['comment_id'] in existing_comment_ids or comment['content'].startswith("图片评论"):
                 # print(f"Skipping duplicate data: {comment}")
+                self.duplicate_count += 1
+                if self.duplicate_count > 220:
+                    self.logger.info("duplicate count is %s", self.duplicate_count)
+                    self.duplicate_count = 0
+                    self.turn_around_flag = True
                 continue
             collection.insert_one(comment)
-
-
-            

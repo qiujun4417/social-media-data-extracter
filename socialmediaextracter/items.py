@@ -35,3 +35,4 @@ class CommentItem(scrapy.Item):
     comment_time = scrapy.Field()
     content = scrapy.Field()
     created_at = scrapy.Field()
+    root_comment_id = scrapy.Field()
