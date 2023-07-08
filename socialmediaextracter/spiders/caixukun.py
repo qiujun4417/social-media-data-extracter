@@ -1,8 +1,8 @@
 import scrapy
 import pymongo
 import datetime
-import time
-import random
+# import time
+# import random
 from socialmediaextracter.spiders import textClean
 from socialmediaextracter.items import UserItem, CommentItem
 from socialmediaextracter.lastScrapyRecord import ScrapyRecord
@@ -24,7 +24,9 @@ class CaixukunSpider(scrapy.Spider):
 
     params = {'id': '4919379877957385', 'is_mix': '0', 'uid': '1776448504', 'fetch_level': '0'}
     
-    another_param = {'id': '4919382171975997', 'is_mix': '0', 'uid': '1642591402', 'fetch_level': '0'}
+    another_param = {'id': '4919404834324822', 'is_mix': '1', 'uid': '1776448504', 'fetch_level': '1'}
+    
+    third_param = {'id': '4919404578735231', 'is_mix': '0', 'uid': '1776448504', 'fetch_level': '0'}
 
     start_urls = ["https://weibo.com/ajax/statuses/buildComments?flow=0&is_reload=1&id={}&count=20&is_show_bulletin=2&is_mix={}&uid={}&fetch_level={}"]
     # is_first_time = True
@@ -68,18 +70,21 @@ class CaixukunSpider(scrapy.Spider):
                     break
 
         self.scrapy_record.save_last_scrapy_comment(max_id, total_number)
+        # if (max_id == 0 and total_number == 0) or (max_id == 0 and len(data) == 0):
+        #    self.already_process_ids.append(self.third_param['id'])
         if max_id and max_id != 0 and len(data) > 0 and not self.turn_around_flag:
             id = self.another_param['id']
             is_mix = self.another_param['is_mix']
             uid = self.another_param['uid']
             fetch_level = self.another_param['fetch_level']
             next_page_url = f"https://weibo.com/ajax/statuses/buildComments?flow=0&is_reload=1&id={id}&count=20&is_show_bulletin=2&is_mix={is_mix}&uid={uid}&fetch_level={fetch_level}&max_id={str(max_id)}"
-            pause_time = random.uniform(2, 4)
-            time.sleep(pause_time)
+            # pause_time = random.uniform(2, 4)
+            # time.sleep(pause_time)
             # 递归调用自身处理下一页响应
             yield scrapy.Request(next_page_url, callback=self.parse, dont_filter=True)
         else:
             self.logger.info("start to query the replys >>>>>>>>>>>>>>>")
+            self.already_process_ids.append(self.another_param['id'])
             if self.current_handled_reply_comment_id != 0 and self.current_handled_reply_comment_id not in self.already_process_ids:
                 self.already_process_ids.append(self.current_handled_reply_comment_id)
             self.duplicate_count = 0
@@ -97,7 +102,7 @@ class CaixukunSpider(scrapy.Spider):
                     self.another_param['is_mix'] = 1
                     self.another_param['uid'] = record['user_id']
                     self.another_param['fetch_level'] = 1
-                    reply_url = f"https://weibo.com/ajax/statuses/buildComments?flow=1&is_reload=1&id={record['comment_id']}&is_show_bulletin=2&is_mix=1&fetch_level=1&count=20&uid={record['user_id']}"
+                    reply_url = f"https://weibo.com/ajax/statuses/buildComments?flow=0&is_reload=1&id={record['comment_id']}&is_show_bulletin=2&is_mix=1&fetch_level=1&count=20&uid={record['user_id']}"
                     break
                 if reply_url:
                     self.logger.info("reply_url %s", reply_url)
