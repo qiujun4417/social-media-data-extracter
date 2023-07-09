@@ -1,8 +1,8 @@
 import scrapy
 import pymongo
 import datetime
-# import time
-# import random
+import time
+import random
 from socialmediaextracter.spiders import textClean
 from socialmediaextracter.items import UserItem, CommentItem
 from socialmediaextracter.lastScrapyRecord import ScrapyRecord
@@ -24,9 +24,9 @@ class CaixukunSpider(scrapy.Spider):
 
     params = {'id': '4919379877957385', 'is_mix': '0', 'uid': '1776448504', 'fetch_level': '0'}
     
-    another_param = {'id': '4919404834324822', 'is_mix': '1', 'uid': '1776448504', 'fetch_level': '1'}
+    another_param = {'id': '4919404834324822', 'is_mix': '0', 'uid': '1776448504', 'fetch_level': '0'}
     
-    third_param = {'id': '4921516346837915', 'is_mix': '0', 'uid': '2487453031', 'fetch_level': '0'}
+    third_param = {'id': '4919404578735231', 'is_mix': '0', 'uid': '1776448504', 'fetch_level': '0'}
 
     start_urls = ["https://weibo.com/ajax/statuses/buildComments?flow=0&is_reload=1&id={}&count=20&is_show_bulletin=2&is_mix={}&uid={}&fetch_level={}"]
     # is_first_time = True
@@ -40,7 +40,7 @@ class CaixukunSpider(scrapy.Spider):
     def start_requests(self):
         for url in self.start_urls:
             # if self.is_first_time:
-            final_url = url.format(self.third_param['id'], self.third_param['is_mix'], self.third_param['uid'], self.third_param['fetch_level'])
+            final_url = url.format(self.another_param['id'], self.another_param['is_mix'], self.another_param['uid'], self.another_param['fetch_level'])
             result = self.scrapy_record.get_last_scrapy_comment_id_and_total_numbers()
             if result is not None and result[0] is not None and result[0] > 0:
                 final_url += f"&max_id={str(result[0])}"
@@ -73,10 +73,10 @@ class CaixukunSpider(scrapy.Spider):
         # if (max_id == 0 and total_number == 0) or (max_id == 0 and len(data) == 0):
         #    self.already_process_ids.append(self.third_param['id'])
         if max_id and max_id != 0 and len(data) > 0 and not self.turn_around_flag:
-            id = self.third_param['id']
-            is_mix = self.third_param['is_mix']
-            uid = self.third_param['uid']
-            fetch_level = self.third_param['fetch_level']
+            id = self.another_param['id']
+            is_mix = self.another_param['is_mix']
+            uid = self.another_param['uid']
+            fetch_level = self.another_param['fetch_level']
             next_page_url = f"https://weibo.com/ajax/statuses/buildComments?flow=0&is_reload=1&id={id}&count=20&is_show_bulletin=2&is_mix={is_mix}&uid={uid}&fetch_level={fetch_level}&max_id={str(max_id)}"
             # pause_time = random.uniform(2, 4)
             # time.sleep(pause_time)
@@ -98,10 +98,10 @@ class CaixukunSpider(scrapy.Spider):
             need_process_comment = [record for record in replied_records if record['comment_id'] in not_yet_process_comment_ids]
             if need_process_comment and len(need_process_comment) > 0:
                 for record in need_process_comment:
-                    self.third_param['id'] = record['comment_id']
-                    self.third_param['is_mix'] = 1
-                    self.third_param['uid'] = record['user_id']
-                    self.third_param['fetch_level'] = 1
+                    self.another_param['id'] = record['comment_id']
+                    self.another_param['is_mix'] = 1
+                    self.another_param['uid'] = record['user_id']
+                    self.another_param['fetch_level'] = 1
                     reply_url = f"https://weibo.com/ajax/statuses/buildComments?flow=0&is_reload=1&id={record['comment_id']}&is_show_bulletin=2&is_mix=1&fetch_level=1&count=20&uid={record['user_id']}"
                     break
                 if reply_url:
