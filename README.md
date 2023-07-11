@@ -14,6 +14,36 @@
 
 本次项目主要会搜集最近热点事件，娱乐明星“蔡徐坤”的睡粉风波，主要在其微博下面搜集其粉丝的评论，评论数量大概为57万左右（截止2023-7-6），对评论会进行数据清洗（去除表情、标点符号、特殊字符）等，搜集信息包括，评论者id, 评论者昵称、性别、地区、评论内容等。
 
+其主要数据结构如下所示：
+* 评论信息
+```json
+{
+    "user_id": "user_id",
+    "coment_id": "comment_id",
+    "nick_name": "nick_name",
+    "reply_count": 1000,
+    "like_count": 1000,
+    "root_comment_id": "root_comment_id",
+    "comment_time": "2023-07-09 11:45:55",
+    "content": "content",
+    "created_at": "2023-07-09 11:45:55"
+}
+```
+* 用户信息
+```json
+{
+    "verified": false, //是否认证
+    "user_id": 123123,
+    "nick_name": "nick_name",
+    "gender": 0, //0 female, 1 male
+    "province" : "河南",
+    "city": "开封",
+    "followers_count": 100, //粉丝数
+    "friends_count": 100, //好友数
+    "source": "河南", //发评论ip属地
+    "created_at": "2023-07-09 11:45:55"
+}
+```
 
 ## 话题选择
 
